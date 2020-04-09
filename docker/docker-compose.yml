@@ -1,0 +1,27 @@
+version: '3.1'
+
+services:
+
+  mongo:
+    image: mongo
+    restart: always
+    container_name: 'inst-mongo'
+    environment:
+      - MONGO_INITDB_DATABASE=instagramm
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=example
+    volumes:
+      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      - ./mongo-volume:/data/db
+    ports:
+      - '27017-27019:27017-27019'
+
+  redis:
+    image: redis
+    container_name: 'inst-redis'
+    volumes:
+      - ../data/redis:/data
+    entrypoint: redis-server --appendonly yes
+    restart: always
+    ports:
+      - "6379:6379"
