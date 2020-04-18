@@ -1,1 +1,6 @@
-
+yandex:
+  oauth:
+    id: f80dfdcf-db1f-4316-80ec-abdf03f6e151
+    url: yandex.ru
+    clientId: a9447a7181284402b58fd1277036415a
+    clientSecret: f4c84ee22aa44f7387b99f28fb426d0f

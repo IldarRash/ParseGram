@@ -3,7 +3,6 @@ package com.parsegram.boot.config;
 
 import com.parsegram.boot.security.AuthManager;
 import com.parsegram.boot.security.HeaderExchangeMatcher;
-import com.parsegram.boot.security.UnauthorizedAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
@@ -22,22 +21,23 @@ public class SecurityConfig {
 
     private static final String[] AUTH_WHITELIST = {
             "/health",
+            "/yandex",
             "/user",
     };
 
     @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http, UnauthorizedAuthenticationEntryPoint entryPoint) {
+    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         http.httpBasic().disable()
-                .formLogin().disable()
                 .csrf().disable()
                 .logout().disable()
                 .requestCache().disable();
 
         return http
-                .exceptionHandling().authenticationEntryPoint(entryPoint).and()
+                .exceptionHandling().and()
                 .addFilterAt(webFilter(), SecurityWebFiltersOrder.AUTHORIZATION)
                 .authorizeExchange().pathMatchers(AUTH_WHITELIST).permitAll().and()
                 .authorizeExchange().anyExchange().authenticated().and()
+                .formLogin().and()
                 .build();
     }
 
