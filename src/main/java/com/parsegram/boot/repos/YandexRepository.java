@@ -5,5 +5,5 @@ import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface YandexRepo extends ReactiveMongoRepository<YandexApi, String> {
+public interface YandexRepository extends ReactiveMongoRepository<YandexApi, String> {
 }
