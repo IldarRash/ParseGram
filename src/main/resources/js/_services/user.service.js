@@ -1,5 +1,5 @@
 import config from 'config';
-import { authHeader } from '../_helpers';
+import {authHeader} from '../_helpers';
 
 export const userService = {
     login,
@@ -14,7 +14,7 @@ function login(username, password) {
         body: JSON.stringify({ username, password })
     };
 
-    return fetch(`${config.apiUrl}/users/authenticate`, requestOptions)
+    return fetch(`${config.apiUrl}/login`, requestOptions)
         .then(handleResponse)
         .then(user => {
             // login successful if there's a user in the response
@@ -57,6 +57,7 @@ function handleResponse(response) {
             return Promise.reject(error);
         }
 
+        console.log("Auth data", data);
         return data;
     });
 }
