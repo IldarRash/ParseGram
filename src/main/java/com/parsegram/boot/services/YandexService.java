@@ -1,14 +1,14 @@
 package com.parsegram.boot.services;
 
 import com.parsegram.boot.model.YandexApi;
+import com.parsegram.boot.model.YandexResponse;
 import com.parsegram.boot.properties.YandexConfigProperties;
 import com.parsegram.boot.repos.YandexRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.ExchangeFilterFunctions;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-
-import java.net.URI;
 
 @Service
 @RequiredArgsConstructor
@@ -22,24 +22,35 @@ public class YandexService {
     }
 
     public Mono<YandexApi> acceptToYandex(Mono<String> code) {
-        return code.flatMap(co -> {
-            return webClient.post()
-                    .uri(URI.create("/token"))
-                    .attribute("grant_type","authorization_code")
-                    .attribute("code", co)
-                    .exchange();
-        })
+        WebClient client = WebClient.builder()
+                                    .baseUrl(yandexConfigProperties.getUrl())
+                                    .defaultHeader("Content-type", "application/x-www-form-urlencoded")
+                                    .filter(ExchangeFilterFunctions
+                                            .basicAuthentication(
+                                                    yandexConfigProperties.getClientId(),
+                                                    yandexConfigProperties.getClientSecret())
+                                    )
+                                    .build();
+        return code.flatMap(co -> client.post()
+                .uri("/token")
+                .attribute("grant_type","authorization_code")
+                .attribute("code", co)
+                .exchange()
+        )
         .log()
-        .flatMap(clientResponse -> {
-            return saveToken(clientResponse.bodyToMono(String.class));
-        });
+        .flatMap(clientResponse -> saveToken(clientResponse.bodyToMono(YandexResponse.class)));
     }
 
-    private Mono<YandexApi> saveToken(Mono<String> token) {
+    private Mono<YandexApi> saveToken(Mono<YandexResponse> token) {
          return token.zipWith(repo.findById(yandexConfigProperties.getId()))
                 .map(tuple -> {
                     YandexApi api = tuple.getT2();
-                    api.setToken(tuple.getT1());
+                    YandexResponse response = tuple.getT1();
+
+                    api.setAccessToken(response.getAccessToken());
+                    api.setRefreshToken(response.getRefreshToken());
+                    api.setExpiresIn(response.getExpiresIn());
+                    api.setTokenType(response.getTokenType());
                     return api;
                 })
                 .flatMap(repo::save);

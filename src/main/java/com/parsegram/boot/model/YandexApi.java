@@ -10,5 +10,8 @@ public class YandexApi {
     private String id;
     private String clientId;
     private String clientSecret;
-    private String token;
+    private String tokenType;
+    private String accessToken;
+    private Long expiresIn;
+    private String refreshToken;
 }
