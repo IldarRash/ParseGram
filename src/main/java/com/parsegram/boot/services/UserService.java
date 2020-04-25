@@ -2,11 +2,13 @@ package com.parsegram.boot.services;
 
 import com.parsegram.boot.model.AuthRequest;
 import com.parsegram.boot.model.AuthResponse;
+import com.parsegram.boot.model.User;
 import com.parsegram.boot.repos.UserRepository;
 import com.parsegram.boot.utils.JWTUtil;
 import com.parsegram.boot.utils.PBKDF2Encoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Service
@@ -20,11 +22,20 @@ public class UserService {
 		return userRepository.findByUsername(authRequest.getUsername())
 				.flatMap(user -> {
 					if (passwordEncoder.encode(authRequest.getPassword()).equals(user.getPassword())) {
-						return Mono.just(new AuthResponse(jwtUtil.generateToken(user)));
+						return Mono.just(AuthResponse
+								.builder()
+								.token(jwtUtil.generateToken(user))
+								.username(user.getUsername())
+								.build()
+						);
 					} else {
 						return Mono.empty();
 					}
 				});
+	}
+
+	public Flux<User> getAllUsers() {
+		return userRepository.findAll();
 	}
 
 	/*@PostConstruct

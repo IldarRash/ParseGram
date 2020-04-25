@@ -57,7 +57,7 @@ function handleResponse(response) {
             return Promise.reject(error);
         }
 
-        console.log("Auth data", data);
+        console.log("Data", data);
         return data;
     });
 }

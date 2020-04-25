@@ -1,4 +1,4 @@
-package com.parsegram.boot.config;
+package com.parsegram.boot.configs;
 
 import com.parsegram.boot.handlers.YandexApiHandler;
 import org.springframework.context.annotation.Bean;
@@ -22,6 +22,7 @@ public class WebConfig implements WebFluxConfigurer {
     RouterFunction<ServerResponse> registreFunction(YandexApiHandler handler) {
         return route()
                 .GET("/yandex", accept(MediaType.APPLICATION_JSON), req -> handler.get(req))
+                .GET("/oauth", accept(MediaType.APPLICATION_JSON), req -> handler.save(req))
                 .build();
     }
 

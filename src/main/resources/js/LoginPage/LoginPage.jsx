@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { userService } from '../_services';
+import {userService, yandexService} from '../_services';
 
 class LoginPage extends React.Component {
     constructor(props) {
@@ -13,11 +13,14 @@ class LoginPage extends React.Component {
             password: '',
             submitted: false,
             loading: false,
-            error: ''
+            error: '',
+            clientId: '',
+            url: ''
         };
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handeleYandexRedirect = this.handeleYandexRedirect.bind(this);
     }
 
     handleChange(e) {
@@ -47,14 +50,22 @@ class LoginPage extends React.Component {
             );
     }
 
+    handeleYandexRedirect(e) {
+        e.preventDefault();
+        this.setState({ loading: true });
+
+        yandexService.clientId().then(
+            api => {
+                console.log("Api",  api)
+                window.location.assign('https://oauth.yandex.ru/authorize?response_type=code&client_id=' +api.clientId);
+            }
+        );
+    }
+
     render() {
         const { username, password, submitted, loading, error } = this.state;
         return (
             <div className="col-md-6 col-md-offset-3">
-                <div className="alert alert-info">
-                    Username: test<br />
-                    Password: test
-                </div>
                 <h2>Login</h2>
                 <form name="form" onSubmit={this.handleSubmit}>
                     <div className={'form-group' + (submitted && !username ? ' has-error' : '')}>
@@ -80,6 +91,14 @@ class LoginPage extends React.Component {
                     {error &&
                         <div className={'alert alert-danger'}>{error}</div>
                     }
+                </form>
+                <form name="form" onSubmit={this.handeleYandexRedirect}>
+                    <div className="form-group">
+                        <button className="btn btn-primary" disabled={loading}>Login with Yandex</button>
+                        {loading &&
+                        <img src="data:image/gif;base64,R0lGODlhEAAQAPIAAP///wAAAMLCwkJCQgAAAGJiYoKCgpKSkiH/C05FVFNDQVBFMi4wAwEAAAAh/hpDcmVhdGVkIHdpdGggYWpheGxvYWQuaW5mbwAh+QQJCgAAACwAAAAAEAAQAAADMwi63P4wyklrE2MIOggZnAdOmGYJRbExwroUmcG2LmDEwnHQLVsYOd2mBzkYDAdKa+dIAAAh+QQJCgAAACwAAAAAEAAQAAADNAi63P5OjCEgG4QMu7DmikRxQlFUYDEZIGBMRVsaqHwctXXf7WEYB4Ag1xjihkMZsiUkKhIAIfkECQoAAAAsAAAAABAAEAAAAzYIujIjK8pByJDMlFYvBoVjHA70GU7xSUJhmKtwHPAKzLO9HMaoKwJZ7Rf8AYPDDzKpZBqfvwQAIfkECQoAAAAsAAAAABAAEAAAAzMIumIlK8oyhpHsnFZfhYumCYUhDAQxRIdhHBGqRoKw0R8DYlJd8z0fMDgsGo/IpHI5TAAAIfkECQoAAAAsAAAAABAAEAAAAzIIunInK0rnZBTwGPNMgQwmdsNgXGJUlIWEuR5oWUIpz8pAEAMe6TwfwyYsGo/IpFKSAAAh+QQJCgAAACwAAAAAEAAQAAADMwi6IMKQORfjdOe82p4wGccc4CEuQradylesojEMBgsUc2G7sDX3lQGBMLAJibufbSlKAAAh+QQJCgAAACwAAAAAEAAQAAADMgi63P7wCRHZnFVdmgHu2nFwlWCI3WGc3TSWhUFGxTAUkGCbtgENBMJAEJsxgMLWzpEAACH5BAkKAAAALAAAAAAQABAAAAMyCLrc/jDKSatlQtScKdceCAjDII7HcQ4EMTCpyrCuUBjCYRgHVtqlAiB1YhiCnlsRkAAAOwAAAAAAAAAAAA==" />
+                        }
+                    </div>
                 </form>
             </div>
         );

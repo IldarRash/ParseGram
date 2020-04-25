@@ -1,7 +1,7 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import {Link} from 'react-router-dom';
 
-import { userService } from '../_services';
+import {userService} from '../_services';
 
 class HomePage extends React.Component {
     constructor(props) {
@@ -33,7 +33,7 @@ class HomePage extends React.Component {
                     <ul>
                         {users.map((user, index) =>
                             <li key={user.id}>
-                                {user.firstName + ' ' + user.lastName}
+                                {user.username + ' ' + user.enabled}
                             </li>
                         )}
                     </ul>

@@ -1,4 +1,4 @@
-package com.parsegram.boot.config;
+package com.parsegram.boot.configs;
 
 
 import com.parsegram.boot.security.AuthenticationManager;
@@ -21,7 +21,9 @@ public class SecurityConfig {
 
     private static final String[] AUTH_WHITELIST = {
             "/health",
-            "/login"
+            "/login",
+            "/yandex",
+            "/oauth"
     };
 
     @Autowired
