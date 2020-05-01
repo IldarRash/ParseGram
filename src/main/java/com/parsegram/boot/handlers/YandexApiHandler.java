@@ -1,6 +1,6 @@
 package com.parsegram.boot.handlers;
 
-import com.parsegram.boot.model.YandexApi;
+import com.parsegram.boot.model.YandexClient;
 import com.parsegram.boot.services.YandexService;
 import com.parsegram.boot.utils.ServerRequestResponseConverter;
 import org.springframework.stereotype.Component;
@@ -13,7 +13,7 @@ import java.net.URI;
 import java.util.Optional;
 
 @Component
-public class YandexApiHandler extends AbstractHandler<YandexApi> {
+public class YandexApiHandler extends AbstractHandler<YandexClient> {
     private final YandexService yandexService;
 
     public YandexApiHandler(YandexService yandexService) {
@@ -23,7 +23,7 @@ public class YandexApiHandler extends AbstractHandler<YandexApi> {
 
     @Override
     public Mono<ServerResponse> get(ServerRequest request) {
-        Mono<YandexApi> yandexApi = yandexService.findYandexProps();
+        Mono<YandexClient> yandexApi = yandexService.findYandexProps();
         return getServerRequestResponseConverter().convertBodyToResponse(yandexApi);
     }
 
@@ -31,11 +31,11 @@ public class YandexApiHandler extends AbstractHandler<YandexApi> {
     public Mono<ServerResponse> save(ServerRequest serverRequest) {
         Optional<String> code = serverRequest.queryParam("code");
         return ServerResponse.permanentRedirect(URI.create("https://yandex.ru/"))
-                .body(yandexService.acceptToYandex(Mono.just(code.get())), YandexApi.class);
+                .body(yandexService.acceptToYandex(Mono.just(code.get())), YandexClient.class);
     }
 
     @Override
-    public Flux<YandexApi> getAll() {
+    public Flux<YandexClient> getAll() {
         return null;
     }
 

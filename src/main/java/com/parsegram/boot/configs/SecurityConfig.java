@@ -23,7 +23,8 @@ public class SecurityConfig {
             "/health",
             "/login",
             "/yandex",
-            "/oauth"
+            "/oauth",
+            "/registration"
     };
 
     @Autowired

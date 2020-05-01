@@ -1,4 +1,4 @@
-package com.parsegram.boot.model;
+package com.parsegram.boot.model.dto;
 
 import lombok.Builder;
 import lombok.Data;

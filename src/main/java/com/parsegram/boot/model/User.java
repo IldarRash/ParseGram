@@ -29,6 +29,7 @@ public class User implements UserDetails {
     private String username;
     private String password;
     private Boolean enabled;
+    private Profile profile;
 
     private List<Role> roles;
 

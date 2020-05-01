@@ -1,11 +1,10 @@
 package com.parsegram.boot.handlers;
 
-import com.parsegram.boot.model.AuthRequest;
-import com.parsegram.boot.model.AuthResponse;
 import com.parsegram.boot.model.User;
+import com.parsegram.boot.model.dto.AuthRequest;
+import com.parsegram.boot.model.dto.AuthResponse;
+import com.parsegram.boot.model.dto.RegistrationDto;
 import com.parsegram.boot.services.UserService;
-import com.parsegram.boot.utils.JWTUtil;
-import com.parsegram.boot.utils.PBKDF2Encoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +15,6 @@ import reactor.core.publisher.Mono;
 @RestController
 @RequiredArgsConstructor
 public class AuthController {
-    private final JWTUtil jwtUtil;
-    private final PBKDF2Encoder passwordEncoder;
     private final UserService userService;
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
@@ -25,6 +22,15 @@ public class AuthController {
         return userService.login(authRequest)
                 .map(ResponseEntity::ok)
                 .defaultIfEmpty(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
+    }
+
+    @RequestMapping(value = "/registration", method = RequestMethod.POST)
+    public Mono<ResponseEntity.BodyBuilder> registration(@RequestBody RegistrationDto registration) {
+        return userService.registration(registration)
+                .map(user -> ResponseEntity.ok())
+                .onErrorResume(th -> {
+                    return Mono.just(ResponseEntity.badRequest());
+                });
     }
 
 

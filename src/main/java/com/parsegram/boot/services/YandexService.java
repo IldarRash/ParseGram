@@ -1,7 +1,7 @@
 package com.parsegram.boot.services;
 
-import com.parsegram.boot.model.YandexApi;
-import com.parsegram.boot.model.YandexResponse;
+import com.parsegram.boot.model.YandexClient;
+import com.parsegram.boot.model.dto.YandexResponse;
 import com.parsegram.boot.properties.YandexConfigProperties;
 import com.parsegram.boot.repos.YandexRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +17,11 @@ public class YandexService {
     private final YandexRepository repo;
     private final WebClient webClient;
 
-    public Mono<YandexApi> findYandexProps() {
+    public Mono<YandexClient> findYandexProps() {
         return repo.findById(yandexConfigProperties.getId());
     }
 
-    public Mono<YandexApi> acceptToYandex(Mono<String> code) {
+    public Mono<YandexClient> acceptToYandex(Mono<String> code) {
         WebClient client = WebClient.builder()
                                     .baseUrl(yandexConfigProperties.getUrl())
                                     .defaultHeader("Content-type", "application/x-www-form-urlencoded")
@@ -41,10 +41,10 @@ public class YandexService {
         .flatMap(clientResponse -> saveToken(clientResponse.bodyToMono(YandexResponse.class)));
     }
 
-    private Mono<YandexApi> saveToken(Mono<YandexResponse> token) {
+    private Mono<YandexClient> saveToken(Mono<YandexResponse> token) {
          return token.zipWith(repo.findById(yandexConfigProperties.getId()))
                 .map(tuple -> {
-                    YandexApi api = tuple.getT2();
+                    YandexClient api = tuple.getT2();
                     YandexResponse response = tuple.getT1();
 
                     api.setAccessToken(response.getAccessToken());
