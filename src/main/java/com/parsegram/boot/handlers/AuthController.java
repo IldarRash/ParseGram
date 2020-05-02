@@ -25,12 +25,10 @@ public class AuthController {
     }
 
     @RequestMapping(value = "/registration", method = RequestMethod.POST)
-    public Mono<ResponseEntity.BodyBuilder> registration(@RequestBody RegistrationDto registration) {
+    public Mono<ResponseEntity<?>> registration(@RequestBody RegistrationDto registration) {
         return userService.registration(registration)
-                .map(user -> ResponseEntity.ok())
-                .onErrorResume(th -> {
-                    return Mono.just(ResponseEntity.badRequest());
-                });
+                .log()
+                .map(user -> ResponseEntity.ok().body(user.getId()));
     }
 
 

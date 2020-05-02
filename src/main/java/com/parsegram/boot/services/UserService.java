@@ -1,5 +1,6 @@
 package com.parsegram.boot.services;
 
+import com.parsegram.boot.exceptions.EmailIsAlreadyExistException;
 import com.parsegram.boot.exceptions.RegistrationException;
 import com.parsegram.boot.model.Profile;
 import com.parsegram.boot.model.Role;
@@ -12,11 +13,14 @@ import com.parsegram.boot.repos.UserRepository;
 import com.parsegram.boot.utils.JWTUtil;
 import com.parsegram.boot.utils.PBKDF2Encoder;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -45,28 +49,39 @@ public class UserService {
 
 	public Mono<User> registration(RegistrationDto registration) {
 		validate(registration);
-		Profile profile = Profile.builder()
-							.id(UUID.randomUUID())
-							.email(registration.getEmail())
-							.yandexClient(new YandexClient())
-							.subscribes(Collections.emptyList())
-							.build();
 
-		User user = User.builder()
-					.id(UUID.randomUUID())
-					.username(registration.getUsername())
-					.password(registration.getPassword())
-					.enabled(true)
-					.roles(List.of(Role.ROLE_USER))
-					.profile(profile)
-					.build();
-
-		return userRepository.save(user);
+		return userRepository.findByEmail(registration.getEmail())
+				.log()
+				.map(user -> {
+					if (user != null )
+						throw new EmailIsAlreadyExistException();
+					return createUser(registration);
+				})
+				.flatMap(userRepository::save);
 	}
 
 	private void validate(RegistrationDto registrationDto) {
-		if (registrationDto.getEmail() == null)
+		boolean valid = EmailValidator.getInstance().isValid(registrationDto.getEmail());
+		if (!valid)
 			throw new RegistrationException();
+	}
+
+	private User createUser(RegistrationDto registration) {
+		Profile profile = Profile.builder()
+				.id(UUID.randomUUID())
+				.email(registration.getEmail())
+				.yandexClient(new YandexClient())
+				.createAt(Date.from(Instant.now()))
+				.subscribes(Collections.emptyList())
+				.build();
+
+		return User.builder()
+				.username(registration.getUsername())
+				.password(registration.getPassword())
+				.enabled(true)
+				.roles(List.of(Role.ROLE_USER))
+				.profile(profile)
+				.build();
 	}
 
 	public Flux<User> getAllUsers() {

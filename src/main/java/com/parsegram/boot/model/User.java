@@ -14,7 +14,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Data
@@ -25,7 +24,7 @@ import java.util.stream.Collectors;
 public class User implements UserDetails {
 
     @Id
-    private UUID id;
+    private String id;
     private String username;
     private String password;
     private Boolean enabled;
