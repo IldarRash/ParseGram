@@ -12,7 +12,8 @@ class RegisterPage extends React.Component {
             user: {
                 email: '',
                 username: '',
-                password: ''
+                password: '',
+                phone: ''
             },
             submitted: false
         };
@@ -50,12 +51,20 @@ class RegisterPage extends React.Component {
                 <h2>Register</h2>
                 <form name="form" onSubmit={this.handleSubmit}>
                     <div className={'form-group' + (submitted && !user.email ? ' has-error' : '')}>
-                        <label htmlFor="lastName">Email</label>
+                        <label htmlFor="email">Email</label>
                         <input type="text" className="form-control" name="email" value={user.email} onChange={this.handleChange} />
                         {submitted && !user.email &&
                             <div className="help-block">Email</div>
                         }
                     </div>
+                    <div className={'form-group' + (submitted && !user.phone ? ' has-error' : '')}>
+                        <label htmlFor="phone">Phone</label>
+                        <input type="text" className="form-control" name="phone" value={user.phone} onChange={this.handleChange} />
+                        {submitted && !user.phone &&
+                        <div className="help-block">Phone</div>
+                        }
+                    </div>
+
                     <div className={'form-group' + (submitted && !user.username ? ' has-error' : '')}>
                         <label htmlFor="username">Username</label>
                         <input type="text" className="form-control" name="username" value={user.username} onChange={this.handleChange} />

@@ -18,6 +18,7 @@ public class Profile {
     private UUID id;
     private String email;
     private Date createAt;
+    private String phone;
     private YandexClient yandexClient;
     private List<Subscribe> subscribes;
 }

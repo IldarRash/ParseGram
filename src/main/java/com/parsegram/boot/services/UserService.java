@@ -1,6 +1,6 @@
 package com.parsegram.boot.services;
 
-import com.parsegram.boot.exceptions.EmailIsAlreadyExistException;
+import com.parsegram.boot.exceptions.AuteficationException;
 import com.parsegram.boot.exceptions.RegistrationException;
 import com.parsegram.boot.model.Profile;
 import com.parsegram.boot.model.Role;
@@ -24,6 +24,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
+import static com.parsegram.boot.exceptions.AuteficationException.ID.DATA_NOT_VALID;
+import static com.parsegram.boot.exceptions.RegistrationException.ID.EMAIL_IS_USED;
+import static com.parsegram.boot.exceptions.RegistrationException.ID.EMAIL_NOT_VALID;
+
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -42,7 +46,7 @@ public class UserService {
 								.build()
 						);
 					} else {
-						return Mono.empty();
+						return Mono.error(new AuteficationException(DATA_NOT_VALID));
 					}
 				});
 	}
@@ -53,19 +57,17 @@ public class UserService {
 		return userRepository.findByEmail(registration.getEmail())
 				.map(user -> {
 					if (user != null )
-						throw new EmailIsAlreadyExistException();
+						throw new RegistrationException(EMAIL_IS_USED);
 					return Mono.empty();
 				})
 				.then(Mono.just(createUser(registration)))
-				.flatMap(user -> {
-					return userRepository.save(user);
-				});
+				.flatMap(userRepository::save);
 	}
 
 	private void validate(RegistrationDto registrationDto) {
 		boolean valid = EmailValidator.getInstance().isValid(registrationDto.getEmail());
 		if (!valid)
-			throw new RegistrationException();
+			throw new RegistrationException(EMAIL_NOT_VALID);
 	}
 
 	private User createUser(RegistrationDto registration) {
@@ -74,6 +76,7 @@ public class UserService {
 				.email(registration.getEmail())
 				.yandexClient(new YandexClient())
 				.createAt(Date.from(Instant.now()))
+				.phone(registration.getPhone())
 				.subscribes(Collections.emptyList())
 				.build();
 

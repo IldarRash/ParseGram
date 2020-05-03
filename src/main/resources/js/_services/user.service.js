@@ -45,14 +45,14 @@ function handleResponse(response) {
             if (response.status === 401) {
                 // auto logout if 401 response returned from api
                 logout();
-                location.reload(true);
             }
 
-            const error = (data && data.message) || response.statusText;
+            const error = (data && data.error) || response.statusText;
+            console.log("Error " + error);
             return Promise.reject(error);
         }
 
-        console.log("Data " + data)
+        console.log("Data " + data);
         return data;
     });
 }
