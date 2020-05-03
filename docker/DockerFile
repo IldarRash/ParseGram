@@ -1,0 +1,4 @@
+FROM openjdk:11-slim
+EXPOSE 8080
+COPY ../build/libs/* ./yandex-parse.jar
+CMD java -jar yandex-parse.jar
