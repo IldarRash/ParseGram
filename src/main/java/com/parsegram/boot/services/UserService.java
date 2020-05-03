@@ -1,5 +1,6 @@
 package com.parsegram.boot.services;
 
+import com.parsegram.boot.exceptions.EmailIsAlreadyExistException;
 import com.parsegram.boot.exceptions.RegistrationException;
 import com.parsegram.boot.model.Profile;
 import com.parsegram.boot.model.Role;
@@ -49,14 +50,16 @@ public class UserService {
 	public Mono<User> registration(RegistrationDto registration) {
 		validate(registration);
 
-		return userRepository.save(createUser(registration));/*findByEmail(registration.getEmail())
-				.log()
+		return userRepository.findByEmail(registration.getEmail())
 				.map(user -> {
 					if (user != null )
 						throw new EmailIsAlreadyExistException();
-					return createUser(registration);
+					return Mono.empty();
 				})
-				.flatMap(userRepository::save);*/
+				.then(Mono.just(createUser(registration)))
+				.flatMap(user -> {
+					return userRepository.save(user);
+				});
 	}
 
 	private void validate(RegistrationDto registrationDto) {
@@ -76,7 +79,7 @@ public class UserService {
 
 		return User.builder()
 				.username(registration.getUsername())
-				.password(registration.getPassword())
+				.password(passwordEncoder.encode(registration.getPassword()))
 				.enabled(true)
 				.roles(List.of(Role.ROLE_USER))
 				.profile(profile)
